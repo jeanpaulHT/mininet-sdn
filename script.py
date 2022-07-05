@@ -1,5 +1,13 @@
 from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.cli import CLI
+from mininet.link import TCLink
+from mininet.node import RemoteController
 import json
+
+from mininet.node import Host
+from mininet.util import quietRun
+from mininet.log import error
 
 class CustomTopo(Topo):
 
@@ -10,6 +18,7 @@ class CustomTopo(Topo):
         with open("struct_config.json", 'r') as struct_info:
             links = json.load(struct_info)
 
+        # print(links)
         # Build objects
         #self.objects["c1"] = self.addController('c1') 
         self.objects = dict()
@@ -27,7 +36,21 @@ class CustomTopo(Topo):
                 left_object = self.objects[left_label]
                 right_object = self.objects[right_label]
                 self.addLink(left_object, right_object)
+                self.addLink(right_object, left_object)
             except KeyError:
                 print("ERROR: %s and/or %s are not valid objects." % (left_label,right_label))
+
+
+def run_custom_net():
+    topo = CustomTopo()
+    net = Mininet(
+        topo=topo
+    )
+    net.start()
+    CLI( net )
+    net.stop()
+
+if __name__ == "__main__":
+    run_custom_net()
 
 topos = {'customtopo': (lambda: CustomTopo())}
